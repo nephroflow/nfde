@@ -1,6 +1,7 @@
 use std::io::Cursor;
 
 use anyhow::bail;
+use command_macros::cmd;
 use lib::nf_container_api;
 use skim::{
     prelude::{SkimItemReader, SkimOptionsBuilder},
@@ -17,12 +18,25 @@ pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Res
     nf_container_api::stop_rails_server()?;
 
     match database_command.action.as_str() {
+        "remove" => remove(database_command.name),
         "dump" => dump(database_command.name),
         "restore" => restore(database_command.name),
         _ => {
             bail!("Unknown database action");
         }
     }
+}
+
+fn remove(name: Option<String>) -> anyhow::Result<()> {
+    let db_path = determine_database_path(name)?;
+
+    match cmd!(rm ((db_path))).status() {
+        Ok(_) => println!("Removed database dump: {}", db_path),
+        Err(_) => bail!("Could not remove database dump"),
+    };
+
+    Ok(())
+
 }
 
 fn dump(name: Option<String>) -> anyhow::Result<()> {
