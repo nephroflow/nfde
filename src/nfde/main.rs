@@ -1,8 +1,8 @@
 use clap::{Args, Parser, Subcommand};
 mod database_command;
 mod docker_command;
-mod healthcheck;
 
+use lib::healthcheck;
 use database_command::handle_database_command;
 use docker_command::handle_docker_command;
 

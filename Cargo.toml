@@ -8,6 +8,19 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.70"
 clap = { version = "4.2.3", features = ["derive"] }
+command-macros = "0.2.9"
 postgres = "0.19.5"
 skim = "0.10.4"
 which = "4.4.0"
+
+[lib]
+name = "lib"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "nfde"
+path = "src/nfde/main.rs"
+
+[[bin]]
+name = "run_api"
+path = "src/run_api/main.rs"

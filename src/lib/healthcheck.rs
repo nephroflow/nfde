@@ -1,5 +1,4 @@
 use which::which;
-
 pub fn run() -> anyhow::Result<()> {
     println!("Running healthchecks...");
     match database_healthcheck() && docker_healthcheck() {
@@ -17,7 +16,7 @@ pub fn run() -> anyhow::Result<()> {
 fn database_healthcheck() -> bool {
     let pg_dump_path = which("pg_dump");
     let pg_restore_path = which("pg_restore");
-    
+
     let pg_dump_found = match pg_dump_path {
         Ok(path) => {
             println!("✅ pg_dump found at: {}", path.display());
@@ -67,7 +66,6 @@ fn database_healthcheck() -> bool {
 
     pg_dump_found && pg_restore_found && createdb_found && dropdb_found
 }
-
 
 fn docker_healthcheck() -> bool {
     let docker_path = which("docker");
