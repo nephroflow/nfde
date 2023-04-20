@@ -1,6 +1,17 @@
 const CONTAINER_NAME: &str = "web";
 use command_macros::cmd;
 
+pub fn stop_rails_server() -> anyhow::Result<()> {
+    println!("Stop Rails server");
+    let cmd = ["pkill".to_string(), "-9".to_string(), "ruby".to_string()].to_vec();
+
+    if is_nephroflow_container_running() {
+        attach_and_run_nephroflow_container(&cmd, false)?;
+    };
+
+    Ok(())
+}
+
 pub fn execute_on_nephroflow_container(command: Vec<String>, interactive: bool) -> anyhow::Result<()> {
     println!("Execute on Nephroflow container: {}", command.join(" "));
 
