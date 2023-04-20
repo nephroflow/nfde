@@ -172,12 +172,12 @@ fn determine_database_path(name: Option<String>) -> anyhow::Result<String> {
 
     // check if file exists
     if !std::path::Path::new(&db_path).exists() {
-        bail!("File does not exist");
+        bail!("File does not exist: {}", &db_path);
     }
 
     //check if file extension is sql
     if !db_path.ends_with(".sql") {
-        bail!("File is not a sql file");
+        bail!("File is not a sql file: {}", &db_path);
     }
 
     Ok(db_path)
