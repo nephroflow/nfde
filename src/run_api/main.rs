@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand};
+use clap::Parser;
 
 use lib::healthcheck;
 use lib::nf_container_api::execute_on_nephroflow_container;
@@ -7,24 +7,19 @@ use lib::nf_container_api::execute_on_nephroflow_container;
 #[clap(
     author = "Aaron Hallaert",
     version,
-    about = "Run commands in the API container",
+    about = "Run commands in the API container"
 )]
 
 struct RunApiArgs {
-    #[clap(subcommand)]
-    pub action: Action,
+    #[clap(flatten)]
+    pub execute_command: ExecuteCommand,
 }
 
-#[derive(Debug, Subcommand)]
-pub enum Action {
-    Execute(ExecuteCommand),
-}
-
-#[derive(Debug, Args)]
+#[derive(Debug, Parser)]
 pub struct ExecuteCommand {
     #[clap(short, long)]
     pub not_interactive: bool,
-    #[clap(last=true)]
+    #[clap(last = true)]
     pub command: Vec<String>,
 }
 
@@ -33,11 +28,10 @@ fn main() -> anyhow::Result<()> {
 
     let args = RunApiArgs::parse();
 
-    match args.action {
-        Action::Execute(execute_command) => {
-            execute_on_nephroflow_container(execute_command.command, !execute_command.not_interactive)?;
-       }
-    };
+    execute_on_nephroflow_container(
+        args.execute_command.command,
+        !args.execute_command.not_interactive,
+    )?;
 
     Ok(())
 }
