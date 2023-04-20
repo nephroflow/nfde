@@ -10,18 +10,18 @@ use skim::{
 
 use crate::DatabaseCommand;
 
-
-fn db_folder () -> String {
+fn db_folder() -> String {
     lib::config::get_config().unwrap().backup_database_path
 }
 
-fn db_name () -> String {
+fn db_name() -> String {
     lib::config::get_config().unwrap().nephroflow_database_name
 }
 
-
 pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Result<()> {
-    nf_container_api::stop_rails_server()?;
+    if nf_container_api::stop_rails_server().is_ok() {
+        println!("Stopped rails server")
+    };
 
     match database_command.action.as_str() {
         "remove" => remove(database_command.name),
@@ -36,13 +36,12 @@ pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Res
 fn remove(name: Option<String>) -> anyhow::Result<()> {
     let db_path = determine_database_path(name)?;
 
-    match cmd!(rm ((db_path))).status() {
+    match cmd!(rm((db_path))).status() {
         Ok(_) => println!("Removed database dump: {}", db_path),
         Err(_) => bail!("Could not remove database dump"),
     };
 
     Ok(())
-
 }
 
 fn dump(name: Option<String>) -> anyhow::Result<()> {
