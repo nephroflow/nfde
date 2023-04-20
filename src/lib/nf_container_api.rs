@@ -1,5 +1,10 @@
-const CONTAINER_NAME: &str = "web";
 use command_macros::cmd;
+
+use crate::config;
+
+fn container_name() -> String {
+    config::get_config().unwrap().api_container_name
+}
 
 pub fn stop_rails_server() -> anyhow::Result<()> {
     println!("Stop Rails server");
@@ -45,8 +50,8 @@ fn start_and_run_nephroflow_container(command: &[String], interactive: bool) -> 
                 cmd.arg("--rm");
                 cmd.arg("--service-ports");
                 cmd.arg("--name");
-                cmd.arg(CONTAINER_NAME);
-                cmd.arg(CONTAINER_NAME);
+                cmd.arg(container_name());
+                cmd.arg(container_name());
                 command.iter().for_each(|arg| {
                     cmd.arg(arg);
                 });
@@ -69,7 +74,7 @@ fn attach_and_run_nephroflow_container(command: &[String], interactive: bool) ->
                 if interactive {
                     cmd.arg("-it");
                 }
-                cmd.arg(CONTAINER_NAME);
+                cmd.arg(container_name());
                 command.iter().for_each(|arg| {
                     cmd.arg(arg);
                 });
@@ -85,7 +90,7 @@ fn attach_and_run_nephroflow_container(command: &[String], interactive: bool) ->
 
 fn stop_nephroflow_container() -> anyhow::Result<()>{
     // docker rm 
-    cmd!(docker rm ((CONTAINER_NAME)))
+    cmd!(docker rm ((container_name())))
         .status()?;
 
     Ok(())
@@ -94,7 +99,7 @@ fn stop_nephroflow_container() -> anyhow::Result<()>{
 
 fn exited_nephroflow_container() -> bool{
     let exited =
-        cmd!(docker ps ("-aq")("status=exited") ("-f")  ((format!("name={}", CONTAINER_NAME))))
+        cmd!(docker ps ("-aq")("status=exited") ("-f")  ((format!("name={}", container_name()))))
             .output()
             .unwrap();
 
@@ -108,7 +113,7 @@ fn exited_nephroflow_container() -> bool{
 }
 
 pub fn is_nephroflow_container_running() -> bool {
-    let running = cmd!(docker ps ("-q") ("-f") ((format!("name={}", CONTAINER_NAME))))
+    let running = cmd!(docker ps ("-q") ("-f") ((format!("name={}", container_name()))))
         .output()
         .unwrap();
 

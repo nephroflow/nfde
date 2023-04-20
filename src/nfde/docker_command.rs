@@ -9,8 +9,14 @@ use skim::{
 
 use crate::DockerCommand;
 
-const IMAGE_FOLDER: &str = "/Users/aaronhallaert/Developer/nephroflow/image_dumps";
-const IMAGE_NAME: &str = "nephroflow/server";
+
+fn image_name()-> String{
+    lib::config::get_config().unwrap().api_image_name
+}
+
+fn image_folder()-> String{
+    lib::config::get_config().unwrap().backup_image_path
+}
 
 pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()> {
     match docker_command.action.as_str() {
@@ -26,7 +32,7 @@ pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()
 fn save(name: Option<String>) -> anyhow::Result<()> {
     match name {
         Some(name) => {
-            let image_path = format!("{}/{}.tar", IMAGE_FOLDER, name);
+            let image_path = format!("{}/{}.tar", image_folder(), name);
 
             println!("Saving docker image to {}", &image_path);
 
@@ -35,7 +41,7 @@ fn save(name: Option<String>) -> anyhow::Result<()> {
                 cmd.arg("save");
                 cmd.arg("-o");
                 cmd.arg(image_path);
-                cmd.arg(IMAGE_NAME);
+                cmd.arg(image_name());
                 cmd
             }
             .status()
@@ -113,13 +119,13 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 fn determine_image_path(name: Option<String>) -> anyhow::Result<String> {
     let image_path = match name {
         Some(name) => {
-            format!("{}/{}.tar", IMAGE_FOLDER, name)
+            format!("{}/{}.tar", image_folder(), name)
         }
         None => {
             let selected_file = select_image();
             match selected_file {
                 Ok(file) => {
-                    format!("{}/{}", IMAGE_FOLDER, file)
+                    format!("{}/{}", image_folder(), file)
                 }
                 Err(e) => bail!(e),
             }
@@ -146,7 +152,7 @@ fn select_image() -> anyhow::Result<String> {
         .build()
         .unwrap();
 
-    let files_in_folder = std::fs::read_dir(IMAGE_FOLDER).unwrap();
+    let files_in_folder = std::fs::read_dir(image_folder()).unwrap();
 
     let joined_by_newline = files_in_folder
         .filter(|file| {

@@ -10,8 +10,14 @@ use skim::{
 
 use crate::DatabaseCommand;
 
-const DBFOLDER: &str = "/Users/aaronhallaert/Developer/nephroflow/db_dumps";
-const DBNAME: &str = "nephroflow_development";
+
+fn db_folder () -> String {
+    lib::config::get_config().unwrap().backup_database_path
+}
+
+fn db_name () -> String {
+    lib::config::get_config().unwrap().nephroflow_database_name
+}
 
 
 pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Result<()> {
@@ -42,7 +48,7 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 fn dump(name: Option<String>) -> anyhow::Result<()> {
     let db_path = match name {
         Some(name) => {
-            format!("{}/{}.sql", DBFOLDER, name)
+            format!("{}/{}.sql", db_folder(), name)
         }
         None => bail!("Please provide a name for the database dump"),
     };
@@ -70,7 +76,7 @@ fn drop_db() -> anyhow::Result<()> {
         cmd.arg("localhost");
         cmd.arg("-U");
         cmd.arg("postgres");
-        cmd.arg(DBNAME);
+        cmd.arg(db_name());
         cmd
     }
     .status()
@@ -91,7 +97,7 @@ fn create_db() -> anyhow::Result<()> {
         cmd.arg("localhost");
         cmd.arg("-U");
         cmd.arg("postgres");
-        cmd.arg(DBNAME);
+        cmd.arg(db_name());
         cmd
     }
     .status()
@@ -113,7 +119,7 @@ fn restore_db(filepath: &str) -> anyhow::Result<()> {
         cmd.arg("-U");
         cmd.arg("postgres");
         cmd.arg("-d");
-        cmd.arg(DBNAME);
+        cmd.arg(db_name());
         cmd.arg("--no-owner");
         cmd.arg("--role=postgres");
         cmd.arg(filepath);
@@ -140,7 +146,7 @@ fn dump_db(filepath: &str) -> anyhow::Result<()> {
         cmd.arg("--file");
         cmd.arg(filepath);
         cmd.arg("--format=c");
-        cmd.arg(DBNAME);
+        cmd.arg(db_name());
         cmd
     }
     .status()
@@ -157,13 +163,13 @@ fn dump_db(filepath: &str) -> anyhow::Result<()> {
 fn determine_database_path(name: Option<String>) -> anyhow::Result<String> {
     let db_path = match name {
         Some(name) => {
-            format!("{}/{}.sql", DBFOLDER, name)
+            format!("{}/{}.sql", db_folder(), name)
         }
         None => {
             let selected_file = select_database();
             match selected_file {
                 Ok(file) => {
-                    format!("{}/{}", DBFOLDER, file)
+                    format!("{}/{}", db_folder(), file)
                 }
                 Err(e) => bail!(e),
             }
@@ -190,7 +196,7 @@ fn select_database() -> anyhow::Result<String> {
         .build()
         .unwrap();
 
-    let files_in_folder = std::fs::read_dir(DBFOLDER).unwrap();
+    let files_in_folder = std::fs::read_dir(db_folder()).unwrap();
 
     let joined_by_newline = files_in_folder
         .filter(|file| {

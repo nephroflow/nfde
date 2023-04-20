@@ -9,9 +9,14 @@ edition = "2021"
 anyhow = "1.0.70"
 clap = { version = "4.2.3", features = ["derive"] }
 command-macros = "0.2.9"
+confy = "0.5.1"
 postgres = "0.19.5"
 skim = "0.10.4"
 which = "4.4.0"
+serde_derive = "1.0"
+serde = "1.0"
+dialoguer = "0.10.4"
+
 
 [lib]
 name = "lib"
