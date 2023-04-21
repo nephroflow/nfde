@@ -41,17 +41,6 @@ Please provide an absolute path without `~` or `$HOME`
 nfde -h
 ```
 
-- Docker commands:
-
-  - `save name`: save the current `nephroflow/server` image to a tar file `name.tar`
-  - `load`: load one of the tar files to a new `nephroflow/server` image
-
-- Database commands:
-
-  - `dump name`: dump the current database `nephroflow_development`
-    to an sql file `name.sql`
-  - `restore`: restore one of the databases to the `nephroflow_development` image
-
 ### run_api
 
 ```bash
