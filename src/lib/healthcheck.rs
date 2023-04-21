@@ -15,6 +15,46 @@ pub fn run() -> anyhow::Result<()> {
     }
 }
 
+pub fn db_run() -> anyhow::Result<()> {
+    match database_healthcheck() {
+        true => {
+            println!();
+            println!("✅ All database healthchecks passed");
+            Ok(())
+        }
+        false => {
+            Err(anyhow::anyhow!("Some database healthchecks failed"))
+        }
+    }
+}
+
+pub fn docker_run() -> anyhow::Result<()> {
+    match docker_healthcheck() {
+        true => {
+            println!();
+            println!("✅ All docker healthchecks passed");
+            Ok(())
+        }
+        false => {
+            Err(anyhow::anyhow!("Some docker healthchecks failed"))
+        }
+    }
+}
+
+pub fn config_run() -> anyhow::Result<()> {
+    match config_healthcheck() {
+        true => {
+            println!();
+            println!("✅ All config healthchecks passed");
+            Ok(())
+        }
+        false => {
+            Err(anyhow::anyhow!("Some config healthchecks failed"))
+        }
+    }
+}
+
+
 fn database_healthcheck() -> bool {
     println!();
     println!("Database healthcheck...");

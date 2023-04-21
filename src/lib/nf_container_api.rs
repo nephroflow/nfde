@@ -18,8 +18,6 @@ pub fn stop_rails_server() -> anyhow::Result<()> {
 }
 
 pub fn execute_on_nephroflow_container(command: Vec<String>, interactive: bool) -> anyhow::Result<()> {
-    println!("Execute on Nephroflow container: {}", command.join(" "));
-
     match is_nephroflow_container_running() {
         true => {
             attach_and_run_nephroflow_container(&command, interactive)?;

@@ -24,9 +24,10 @@ pub struct ExecuteCommand {
 }
 
 fn main() -> anyhow::Result<()> {
-    healthcheck::run()?;
-
     let args = RunApiArgs::parse();
+
+    healthcheck::config_run()?;
+    healthcheck::docker_run()?;
 
     execute_on_nephroflow_container(
         args.execute_command.command,
