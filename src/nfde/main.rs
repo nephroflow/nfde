@@ -30,13 +30,57 @@ pub enum Action {
 
 #[derive(Debug, Args)]
 pub struct DatabaseCommand {
-    pub action: String,
+    #[clap(subcommand)]
+    database_action: DatabaseAction,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DatabaseAction {
+    DatabaseRemove(DatabaseRemoveCommand),
+    DatabaseDump(DatabaseDumpCommand),
+    DatabaseRestore(DatabaseRestoreCommand),
+}
+
+#[derive(Debug, Args)]
+pub struct DatabaseDumpCommand {
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct DatabaseRestoreCommand {
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct DatabaseRemoveCommand {
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
 pub struct DockerCommand {
-    pub action: String,
+    #[clap(subcommand)]
+    docker_action: DockerAction,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DockerAction {
+    DockerLoad(DockerLoadCommand),
+    DockerSave(DockerSaveCommand),
+    DockerRemove(DockerRemoveCommand),
+}
+
+#[derive(Debug, Args)]
+pub struct DockerLoadCommand {
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct DockerSaveCommand {
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Args)]
+pub struct DockerRemoveCommand {
     pub name: Option<String>,
 }
 
@@ -87,8 +131,6 @@ fn handle_config_command() -> anyhow::Result<()> {
         .with_prompt("Backup image path")
         .default(default_config.backup_image_path)
         .interact_text()?;
-
-
 
     let config = Config {
         api_container_name,

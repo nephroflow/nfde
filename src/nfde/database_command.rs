@@ -8,7 +8,7 @@ use skim::{
     Skim,
 };
 
-use crate::DatabaseCommand;
+use crate::{DatabaseAction, DatabaseCommand};
 
 fn db_folder() -> String {
     lib::config::get_config().unwrap().backup_database_path
@@ -23,13 +23,10 @@ pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Res
         println!("Stopped rails server")
     };
 
-    match database_command.action.as_str() {
-        "remove" => remove(database_command.name),
-        "dump" => dump(database_command.name),
-        "restore" => restore(database_command.name),
-        _ => {
-            bail!("Unknown database action");
-        }
+    match database_command.database_action {
+        DatabaseAction::DatabaseRemove(remove_command) => remove(remove_command.name),
+        DatabaseAction::DatabaseDump(dump_command) => dump(dump_command.name),
+        DatabaseAction::DatabaseRestore(restore_command) => restore(restore_command.name),
     }
 }
 
