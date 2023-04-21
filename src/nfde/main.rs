@@ -35,28 +35,34 @@ pub struct DatabaseCommand {
 }
 
 #[derive(Debug, Subcommand)]
+#[clap(name = "database", about = "Manage your databases")]
 pub enum DatabaseAction {
-    DatabaseRemove(DatabaseRemoveCommand),
-    DatabaseDump(DatabaseDumpCommand),
-    DatabaseRestore(DatabaseRestoreCommand),
+    Remove(DatabaseRemoveCommand),
+    Dump(DatabaseDumpCommand),
+    Restore(DatabaseRestoreCommand),
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "dump", about = "Dump your current database")]
 pub struct DatabaseDumpCommand {
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "restore", about = "Restore a database backup")]
 pub struct DatabaseRestoreCommand {
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "remove", about = "Remove a database backup")]
 pub struct DatabaseRemoveCommand {
     pub name: Option<String>,
 }
 
+
 #[derive(Debug, Args)]
+#[clap(name = "docker", about = "Manage your docker images")]
 pub struct DockerCommand {
     #[clap(subcommand)]
     docker_action: DockerAction,
@@ -64,22 +70,25 @@ pub struct DockerCommand {
 
 #[derive(Debug, Subcommand)]
 pub enum DockerAction {
-    DockerLoad(DockerLoadCommand),
-    DockerSave(DockerSaveCommand),
-    DockerRemove(DockerRemoveCommand),
+    Load(DockerLoadCommand),
+    Save(DockerSaveCommand),
+    Remove(DockerRemoveCommand),
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "load", about = "Load a docker image")]
 pub struct DockerLoadCommand {
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "save", about = "Save your current docker image")]
 pub struct DockerSaveCommand {
     pub name: Option<String>,
 }
 
 #[derive(Debug, Args)]
+#[clap(name = "remove", about = "Remove an image backup")]
 pub struct DockerRemoveCommand {
     pub name: Option<String>,
 }

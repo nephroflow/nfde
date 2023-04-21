@@ -19,13 +19,13 @@ fn image_folder() -> String {
 
 pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()> {
     match docker_command.docker_action {
-        DockerAction::DockerSave(docker_save_command) => {
+        DockerAction::Save(docker_save_command) => {
             save(docker_save_command.name)?;
         }
-        DockerAction::DockerLoad(docker_load_command) => {
+        DockerAction::Load(docker_load_command) => {
             load(docker_load_command.name)?;
         }
-        DockerAction::DockerRemove(docker_remove_command) => {
+        DockerAction::Remove(docker_remove_command) => {
             remove(docker_remove_command.name)?;
         }
     };

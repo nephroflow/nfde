@@ -24,9 +24,9 @@ pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Res
     };
 
     match database_command.database_action {
-        DatabaseAction::DatabaseRemove(remove_command) => remove(remove_command.name),
-        DatabaseAction::DatabaseDump(dump_command) => dump(dump_command.name),
-        DatabaseAction::DatabaseRestore(restore_command) => restore(restore_command.name),
+        DatabaseAction::Remove(remove_command) => remove(remove_command.name),
+        DatabaseAction::Dump(dump_command) => dump(dump_command.name),
+        DatabaseAction::Restore(restore_command) => restore(restore_command.name),
     }
 }
 
