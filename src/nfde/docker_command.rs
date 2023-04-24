@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::{fs::read, io::Cursor, process::Stdio};
 
 use anyhow::bail;
@@ -36,9 +37,9 @@ pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()
 fn save(name: Option<String>) -> anyhow::Result<()> {
     match name {
         Some(name) => {
-            let image_path = format!("{}/{}.tar", image_folder(), name);
+            let image_path = Path::new(&image_folder()).join(format!("{}.tar", name));
 
-            println!("Saving docker image to {}", &image_path);
+            println!("Saving docker image to {}", &image_path.display());
 
             let ran = {
                 let mut cmd = ::std::process::Command::new("docker");
@@ -71,7 +72,7 @@ fn load(name: Option<String>) -> anyhow::Result<()> {
 
     let image_data = read(&image_path).expect("Failed to read image file");
 
-    println!("Loading docker image {}", &image_path);
+    println!("Loading docker image {}", &image_path.display());
 
     let mut child = ::std::process::Command::new("docker")
         .arg("load")
@@ -113,23 +114,21 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
     .success();
 
     if ran {
-        println!("Removed image: {}", &image_path);
+        println!("Removed image: {}", &image_path.display());
         Ok(())
     } else {
         Err(anyhow::anyhow!("Could not remove docker image"))
     }
 }
 
-fn determine_image_path(name: Option<String>) -> anyhow::Result<String> {
+fn determine_image_path(name: Option<String>) -> anyhow::Result<PathBuf> {
     let image_path = match name {
-        Some(name) => {
-            format!("{}/{}.tar", image_folder(), name)
-        }
+        Some(name) => Path::new(&image_folder()).join(format!("{}.tar", name)),
         None => {
             let selected_file = select_image();
             match selected_file {
                 Ok(file) => {
-                    format!("{}/{}", image_folder(), file)
+                    Path::new(&image_folder()).join(file)
                 }
                 Err(e) => bail!(e),
             }
@@ -138,12 +137,12 @@ fn determine_image_path(name: Option<String>) -> anyhow::Result<String> {
 
     // check if file exists
     if !std::path::Path::new(&image_path).exists() {
-        bail!("File does not exist: {}", &image_path);
+        bail!("File does not exist: {}", &image_path.display());
     }
 
     //check if file extension is sql
-    if !image_path.ends_with(".tar") {
-        bail!("File is not a tar file: {}", &image_path);
+    if !&image_path.display().to_string().ends_with(".tar") {
+        bail!("File is not a tar file: {}", &image_path.display());
     }
 
     Ok(image_path)

@@ -8,7 +8,7 @@ fn container_name() -> String {
 
 pub fn stop_rails_server() -> anyhow::Result<()> {
     println!("Stop Rails server");
-    let cmd = ["pkill".to_string(), "-9".to_string(), "ruby".to_string()].to_vec();
+    let cmd = vec!["pkill".to_string(), "-9".to_string(), "ruby".to_string()];
 
     if is_nephroflow_container_running() {
         attach_and_run_nephroflow_container(&cmd, false)?;

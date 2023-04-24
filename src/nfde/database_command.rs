@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{io::Cursor, path::{Path, PathBuf}};
 
 use anyhow::bail;
 use command_macros::cmd;
@@ -33,8 +33,8 @@ pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Res
 fn remove(name: Option<String>) -> anyhow::Result<()> {
     let db_path = determine_database_path(name)?;
 
-    match cmd!(rm((db_path))).status() {
-        Ok(_) => println!("Removed database dump: {}", db_path),
+    match cmd!(rm((&db_path.display()))).status() {
+        Ok(_) => println!("Removed database dump: {}", &db_path.display()),
         Err(_) => bail!("Could not remove database dump"),
     };
 
@@ -44,11 +44,11 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 fn dump(name: Option<String>) -> anyhow::Result<()> {
     let db_path = match name {
         Some(name) => {
-            format!("{}/{}.sql", db_folder(), name)
+            Path::new(&db_folder()).join(name)
         }
         None => bail!("Please provide a name for the database dump"),
     };
-    println!("Dumping to {}", db_path);
+    println!("Dumping to {}", &db_path.display());
 
     dump_db(&db_path)?;
 
@@ -57,7 +57,7 @@ fn dump(name: Option<String>) -> anyhow::Result<()> {
 
 fn restore(name: Option<String>) -> anyhow::Result<()> {
     let db_path = determine_database_path(name)?;
-    println!("Restoring database from {}", db_path);
+    println!("Restoring database from {}", &db_path.display());
     drop_db()?;
     create_db()?;
     restore_db(&db_path)?;
@@ -107,7 +107,7 @@ fn create_db() -> anyhow::Result<()> {
     }
 }
 
-fn restore_db(filepath: &str) -> anyhow::Result<()> {
+fn restore_db(filepath: &Path) -> anyhow::Result<()> {
     let ran = {
         let mut cmd = ::std::process::Command::new("pg_restore");
         cmd.arg("-h");
@@ -132,7 +132,7 @@ fn restore_db(filepath: &str) -> anyhow::Result<()> {
     }
 }
 
-fn dump_db(filepath: &str) -> anyhow::Result<()> {
+fn dump_db(filepath: &Path) -> anyhow::Result<()> {
     let ran = {
         let mut cmd = ::std::process::Command::new("pg_dump");
         cmd.arg("-h");
@@ -156,16 +156,16 @@ fn dump_db(filepath: &str) -> anyhow::Result<()> {
     }
 }
 
-fn determine_database_path(name: Option<String>) -> anyhow::Result<String> {
+fn determine_database_path(name: Option<String>) -> anyhow::Result<PathBuf> {
     let db_path = match name {
         Some(name) => {
-            format!("{}/{}.sql", db_folder(), name)
+            Path::new(&db_folder()).join(format!("{}.sql", name))
         }
         None => {
             let selected_file = select_database();
             match selected_file {
                 Ok(file) => {
-                    format!("{}/{}", db_folder(), file)
+                    Path::new(&db_folder()).join(file)
                 }
                 Err(e) => bail!(e),
             }
@@ -173,13 +173,13 @@ fn determine_database_path(name: Option<String>) -> anyhow::Result<String> {
     };
 
     // check if file exists
-    if !std::path::Path::new(&db_path).exists() {
-        bail!("File does not exist: {}", &db_path);
+    if !&db_path.exists() {
+        bail!("File does not exist: {}", &db_path.display());
     }
 
     //check if file extension is sql
-    if !db_path.ends_with(".sql") {
-        bail!("File is not a sql file: {}", &db_path);
+    if !&db_path.display().to_string().ends_with(".sql") {
+        bail!("File is not a sql file: {}", &db_path.display());
     }
 
     Ok(db_path)
