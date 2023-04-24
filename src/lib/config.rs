@@ -29,7 +29,7 @@ pub fn get_config() -> anyhow::Result<Config> {
     let mut config = confy::load::<Config>("nfde", None)?;
 
     if config.api_container_name.is_empty() {
-        config.api_container_name = "web".to_string();
+        config.api_container_name = "nephroflow-web-1".to_string();
     }
 
     if config.api_image_name.is_empty() {

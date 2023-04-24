@@ -60,7 +60,7 @@ fn start_and_run_nephroflow_container(command: &[String], interactive: bool) -> 
         cmd.arg("--service-ports");
         cmd.arg("--name");
         cmd.arg(container_name());
-        cmd.arg(container_name());
+        cmd.arg("web");
         command.iter().for_each(|arg| {
             cmd.arg(arg);
         });

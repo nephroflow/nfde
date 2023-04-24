@@ -47,7 +47,7 @@ nfde config
 
 ### Docker image, container and database names
 
-- api_container_name (default: "web")
+- api_container_name (default: "nephroflow-web-1")
 - api_image_name (default: "nephroflow/server")
 - nephroflow_database_name (default: "nephroflow_development")
 
