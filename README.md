@@ -4,6 +4,9 @@ Switch NephroFlow development environments easily.
 
 ## Dump and restore databases
 
+Include `export PGPASSWORD=...` in your `.zshrc` or `.bashrc`. This way,
+you don't have to enter the postgres password for every postgres action.
+
 ### Dump
 
 1. Start the postgres service (with exposed ports): `docker-compose run --service-ports postgres`
@@ -33,10 +36,11 @@ nfde docker load
 ## Prerequisites
 
 - docker
-- drop_db
-- create_db
-- pg_dump
-- pg_restore
+- `brew install postgresql`
+  - drop_db
+  - create_db
+  - pg_dump
+  - pg_restore
 - (connection to the postgres database from localhost)
 
 ## Config
