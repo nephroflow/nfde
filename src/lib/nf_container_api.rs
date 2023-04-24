@@ -87,7 +87,10 @@ fn attach_and_run_nephroflow_container(
         let mut cmd = ::std::process::Command::new("docker");
         cmd.arg("exec");
         if interactive {
-            cmd.arg("-it");
+            cmd.arg("-i");
+            if atty::is(atty::Stream::Stdout) {
+                cmd.arg("-t");
+            }
         }
         cmd.arg(container_name());
         command.iter().for_each(|arg| {

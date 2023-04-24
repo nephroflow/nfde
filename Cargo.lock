@@ -970,6 +970,7 @@ name = "nfde"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "atty",
  "clap 4.2.3",
  "command-macros",
  "confy",
