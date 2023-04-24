@@ -9,6 +9,22 @@ pub struct Config {
     pub nephroflow_database_name: String,
 }
 
+impl Config {
+    pub fn db_folder(&self) -> String {
+        match shellexpand::full(&self.backup_database_path) {
+            Ok(path) => path.to_string(),
+            Err(_) => panic!("Could not expand path: {}", &self.backup_database_path),
+        }
+    }
+
+    pub fn image_folder(&self) -> String {
+        match shellexpand::full(&self.backup_image_path) {
+            Ok(path) => path.to_string(),
+            Err(_) => panic!("Could not expand path: {}", &self.backup_image_path),
+        }
+    }
+}
+
 pub fn get_config() -> anyhow::Result<Config> {
     let mut config = confy::load::<Config>("nfde", None)?;
 

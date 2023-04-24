@@ -148,11 +148,11 @@ fn config_healthcheck() -> bool {
     println!();
     println!("Config healthcheck...");
     let config = crate::config::get_config().unwrap();
-    let api_container_name = config.api_container_name;
-    let api_image_name = config.api_image_name;
-    let backup_image_path = config.backup_image_path;
-    let backup_database_path = config.backup_database_path;
-    let nephroflow_database_name = config.nephroflow_database_name;
+    let api_container_name = &config.api_container_name;
+    let api_image_name = &config.api_image_name;
+    let backup_image_path = &config.image_folder();
+    let backup_database_path = &config.db_folder();
+    let nephroflow_database_name = &config.nephroflow_database_name;
 
     let api_container_name_found = !api_container_name.is_empty();
     match api_container_name_found {

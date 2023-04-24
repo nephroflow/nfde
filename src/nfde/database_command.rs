@@ -2,7 +2,7 @@ use std::{io::Cursor, path::{Path, PathBuf}};
 
 use anyhow::bail;
 use command_macros::cmd;
-use lib::nf_container_api;
+use lib::{nf_container_api, config::Config};
 use skim::{
     prelude::{SkimItemReader, SkimOptionsBuilder},
     Skim,
@@ -10,12 +10,8 @@ use skim::{
 
 use crate::{DatabaseAction, DatabaseCommand};
 
-fn db_folder() -> String {
-    lib::config::get_config().unwrap().backup_database_path
-}
-
-fn db_name() -> String {
-    lib::config::get_config().unwrap().nephroflow_database_name
+fn config() -> Config {
+    lib::config::get_config().unwrap()
 }
 
 pub fn handle_database_command(database_command: DatabaseCommand) -> anyhow::Result<()> {
@@ -44,7 +40,7 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 fn dump(name: Option<String>) -> anyhow::Result<()> {
     let db_path = match name {
         Some(name) => {
-            Path::new(&db_folder()).join(name)
+            Path::new(&config().db_folder()).join(name)
         }
         None => bail!("Please provide a name for the database dump"),
     };
@@ -72,7 +68,7 @@ fn drop_db() -> anyhow::Result<()> {
         cmd.arg("localhost");
         cmd.arg("-U");
         cmd.arg("postgres");
-        cmd.arg(db_name());
+        cmd.arg(&config().nephroflow_database_name);
         cmd
     }
     .status()
@@ -93,7 +89,7 @@ fn create_db() -> anyhow::Result<()> {
         cmd.arg("localhost");
         cmd.arg("-U");
         cmd.arg("postgres");
-        cmd.arg(db_name());
+        cmd.arg(&config().nephroflow_database_name);
         cmd
     }
     .status()
@@ -115,7 +111,7 @@ fn restore_db(filepath: &Path) -> anyhow::Result<()> {
         cmd.arg("-U");
         cmd.arg("postgres");
         cmd.arg("-d");
-        cmd.arg(db_name());
+        cmd.arg(&config().nephroflow_database_name);
         cmd.arg("--no-owner");
         cmd.arg("--role=postgres");
         cmd.arg(filepath);
@@ -142,7 +138,7 @@ fn dump_db(filepath: &Path) -> anyhow::Result<()> {
         cmd.arg("--file");
         cmd.arg(filepath);
         cmd.arg("--format=c");
-        cmd.arg(db_name());
+        cmd.arg(&config().nephroflow_database_name);
         cmd
     }
     .status()
@@ -159,13 +155,13 @@ fn dump_db(filepath: &Path) -> anyhow::Result<()> {
 fn determine_database_path(name: Option<String>) -> anyhow::Result<PathBuf> {
     let db_path = match name {
         Some(name) => {
-            Path::new(&db_folder()).join(format!("{}.sql", name))
+            Path::new(&config().db_folder()).join(format!("{}.sql", name))
         }
         None => {
             let selected_file = select_database();
             match selected_file {
                 Ok(file) => {
-                    Path::new(&db_folder()).join(file)
+                    Path::new(&config().db_folder()).join(file)
                 }
                 Err(e) => bail!(e),
             }
@@ -192,7 +188,7 @@ fn select_database() -> anyhow::Result<String> {
         .build()
         .unwrap();
 
-    let files_in_folder = std::fs::read_dir(db_folder()).unwrap();
+    let files_in_folder = std::fs::read_dir(&config().db_folder()).unwrap();
 
     let joined_by_newline = files_in_folder
         .filter(|file| {

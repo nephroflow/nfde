@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::{fs::read, io::Cursor, process::Stdio};
 
 use anyhow::bail;
+use lib::config::Config;
 use skim::{
     prelude::{SkimItemReader, SkimOptionsBuilder},
     Skim,
@@ -10,12 +11,8 @@ use skim::{
 
 use crate::{DockerAction, DockerCommand};
 
-fn image_name() -> String {
-    lib::config::get_config().unwrap().api_image_name
-}
-
-fn image_folder() -> String {
-    lib::config::get_config().unwrap().backup_image_path
+fn config() -> Config {
+    lib::config::get_config().unwrap()
 }
 
 pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()> {
@@ -37,7 +34,7 @@ pub fn handle_docker_command(docker_command: DockerCommand) -> anyhow::Result<()
 fn save(name: Option<String>) -> anyhow::Result<()> {
     match name {
         Some(name) => {
-            let image_path = Path::new(&image_folder()).join(format!("{}.tar", name));
+            let image_path = Path::new(&config().image_folder()).join(format!("{}.tar", name));
 
             println!("Saving docker image to {}", &image_path.display());
 
@@ -46,7 +43,7 @@ fn save(name: Option<String>) -> anyhow::Result<()> {
                 cmd.arg("save");
                 cmd.arg("-o");
                 cmd.arg(image_path);
-                cmd.arg(image_name());
+                cmd.arg(&config().api_image_name);
                 cmd
             }
             .status()
@@ -123,12 +120,12 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 
 fn determine_image_path(name: Option<String>) -> anyhow::Result<PathBuf> {
     let image_path = match name {
-        Some(name) => Path::new(&image_folder()).join(format!("{}.tar", name)),
+        Some(name) => Path::new(&config().image_folder()).join(format!("{}.tar", name)),
         None => {
             let selected_file = select_image();
             match selected_file {
                 Ok(file) => {
-                    Path::new(&image_folder()).join(file)
+                    Path::new(&config().image_folder()).join(file)
                 }
                 Err(e) => bail!(e),
             }
@@ -155,7 +152,7 @@ fn select_image() -> anyhow::Result<String> {
         .build()
         .unwrap();
 
-    let files_in_folder = std::fs::read_dir(image_folder()).unwrap();
+    let files_in_folder = std::fs::read_dir(config().image_folder()).unwrap();
 
     let joined_by_newline = files_in_folder
         .filter(|file| {

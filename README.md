@@ -28,8 +28,6 @@ nfde config
 
 ### Backup paths
 
-Please provide an absolute path without `~` or `$HOME`
-
 - backup_image_path
 - backup_database_path
 
