@@ -2,8 +2,33 @@
 
 Switch NephroFlow development environments easily.
 
-Dump and restore database.
-Save and load docker images.
+## Dump and restore databases
+
+### Dump
+
+1. Start the postgres service (with exposed ports): `docker-compose run --service-ports postgres`
+2. `nfde database dump $name`
+
+### Restore
+
+1. Start the postgres service (with exposed ports): `docker-compose run --service-ports postgres`
+2. Make sure nothing is using the database (the tool will only try to kill
+   the `rails` process of the `web` service)
+3. `nfde database restore` will open a fuzzy picker of your saved database
+
+## Save and load docker images
+
+### Save
+
+```bash
+nfde docker save $name
+```
+
+### Load
+
+```bash
+nfde docker load
+```
 
 ## Prerequisites
 
