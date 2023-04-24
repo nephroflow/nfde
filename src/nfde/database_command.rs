@@ -1,8 +1,11 @@
-use std::{io::Cursor, path::{Path, PathBuf}};
+use std::{
+    io::Cursor,
+    path::{Path, PathBuf},
+};
 
 use anyhow::bail;
 use command_macros::cmd;
-use lib::{nf_container_api, config::Config};
+use lib::{config::Config, nf_container_api};
 use skim::{
     prelude::{SkimItemReader, SkimOptionsBuilder},
     Skim,
@@ -39,9 +42,7 @@ fn remove(name: Option<String>) -> anyhow::Result<()> {
 
 fn dump(name: Option<String>) -> anyhow::Result<()> {
     let db_path = match name {
-        Some(name) => {
-            Path::new(&config().db_folder()).join(name)
-        }
+        Some(name) => Path::new(&config().db_folder()).join(format!("{}.sql", name)),
         None => bail!("Please provide a name for the database dump"),
     };
     println!("Dumping to {}", &db_path.display());
@@ -154,15 +155,11 @@ fn dump_db(filepath: &Path) -> anyhow::Result<()> {
 
 fn determine_database_path(name: Option<String>) -> anyhow::Result<PathBuf> {
     let db_path = match name {
-        Some(name) => {
-            Path::new(&config().db_folder()).join(format!("{}.sql", name))
-        }
+        Some(name) => Path::new(&config().db_folder()).join(format!("{}.sql", name)),
         None => {
             let selected_file = select_database();
             match selected_file {
-                Ok(file) => {
-                    Path::new(&config().db_folder()).join(file)
-                }
+                Ok(file) => Path::new(&config().db_folder()).join(file),
                 Err(e) => bail!(e),
             }
         }
