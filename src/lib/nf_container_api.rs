@@ -11,13 +11,23 @@ pub fn stop_rails_server() -> anyhow::Result<()> {
     let cmd = vec!["pkill".to_string(), "-9".to_string(), "ruby".to_string()];
 
     if is_nephroflow_container_running() {
-        attach_and_run_nephroflow_container(&cmd, false)?;
+        match attach_and_run_nephroflow_container(&cmd, false) {
+            Ok(_) => {
+                println!("Rails server stopped");
+            }
+            Err(_) => {
+                println!("Rails server not running");
+            }
+        }
     };
 
     Ok(())
 }
 
-pub fn execute_on_nephroflow_container(command: Vec<String>, interactive: bool) -> anyhow::Result<()> {
+pub fn execute_on_nephroflow_container(
+    command: Vec<String>,
+    interactive: bool,
+) -> anyhow::Result<()> {
     match is_nephroflow_container_running() {
         true => {
             attach_and_run_nephroflow_container(&command, interactive)?;
@@ -40,44 +50,54 @@ pub fn execute_on_nephroflow_container(command: Vec<String>, interactive: bool) 
 fn start_and_run_nephroflow_container(command: &[String], interactive: bool) -> anyhow::Result<()> {
     println!("Create and run API container");
 
-    let ran = { let mut cmd = ::std::process::Command::new("docker-compose");
-                cmd.arg("run");
-                if !interactive {
-                    cmd.arg("-T");
-                }
-                cmd.arg("--rm");
-                cmd.arg("--service-ports");
-                cmd.arg("--name");
-                cmd.arg(container_name());
-                cmd.arg(container_name());
-                command.iter().for_each(|arg| {
-                    cmd.arg(arg);
-                });
-                cmd
-            }.status().unwrap().success();
+    let ran = {
+        let mut cmd = ::std::process::Command::new("docker-compose");
+        cmd.arg("run");
+        if !interactive {
+            cmd.arg("-T");
+        }
+        cmd.arg("--rm");
+        cmd.arg("--service-ports");
+        cmd.arg("--name");
+        cmd.arg(container_name());
+        cmd.arg(container_name());
+        command.iter().for_each(|arg| {
+            cmd.arg(arg);
+        });
+        cmd
+    }
+    .status()
+    .unwrap()
+    .success();
 
     if ran {
         Ok(())
     } else {
         Err(anyhow::anyhow!("Command failed to run"))
     }
-
 }
 
-fn attach_and_run_nephroflow_container(command: &[String], interactive: bool) -> anyhow::Result<()> {
+fn attach_and_run_nephroflow_container(
+    command: &[String],
+    interactive: bool,
+) -> anyhow::Result<()> {
     println!("Attach and run API container");
 
-    let ran = { let mut cmd = ::std::process::Command::new("docker");
-                cmd.arg("exec");
-                if interactive {
-                    cmd.arg("-it");
-                }
-                cmd.arg(container_name());
-                command.iter().for_each(|arg| {
-                    cmd.arg(arg);
-                });
-                cmd
-            }.status().unwrap().success();
+    let ran = {
+        let mut cmd = ::std::process::Command::new("docker");
+        cmd.arg("exec");
+        if interactive {
+            cmd.arg("-it");
+        }
+        cmd.arg(container_name());
+        command.iter().for_each(|arg| {
+            cmd.arg(arg);
+        });
+        cmd
+    }
+    .status()
+    .unwrap()
+    .success();
 
     if ran {
         Ok(())
@@ -86,16 +106,14 @@ fn attach_and_run_nephroflow_container(command: &[String], interactive: bool) ->
     }
 }
 
-fn stop_nephroflow_container() -> anyhow::Result<()>{
-    // docker rm 
-    cmd!(docker rm ((container_name())))
-        .status()?;
+fn stop_nephroflow_container() -> anyhow::Result<()> {
+    // docker rm
+    cmd!(docker rm ((container_name()))).status()?;
 
     Ok(())
 }
 
-
-fn exited_nephroflow_container() -> bool{
+fn exited_nephroflow_container() -> bool {
     let exited =
         cmd!(docker ps ("-aq")("status=exited") ("-f")  ((format!("name={}", container_name()))))
             .output()
@@ -123,4 +141,3 @@ pub fn is_nephroflow_container_running() -> bool {
         false
     }
 }
-
