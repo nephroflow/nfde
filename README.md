@@ -79,5 +79,5 @@ run_api -h
 Install cargo and run
 
 ```bash
-cargo install --path .
+cargo install --git https://www.github.com/aaronhallaert/nfde.git
 ```
