@@ -55,10 +55,11 @@ fn dump(name: Option<String>) -> anyhow::Result<()> {
 fn restore(name: Option<String>) -> anyhow::Result<()> {
     let db_path = determine_database_path(name)?;
     println!("Restoring database from {}", &db_path.display());
-    drop_db()?;
+    drop_db().ok();
     create_db()?;
     restore_db(&db_path)?;
 
+    println!("Successfully restored database {}", &db_path.display());
     Ok(())
 }
 
