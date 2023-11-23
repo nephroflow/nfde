@@ -79,5 +79,5 @@ run_api -h
 Install cargo and run
 
 ```bash
-cargo install --git https://www.github.com/aaronhallaert/nfde.git
+cargo install --git https://www.github.com/nephroflow/nfde.git
 ```
